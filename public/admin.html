@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#00ff88"><title>OWNER • KAWAKI227</title>
+<style>
+body{margin:0;background:#030605;color:#effff4;font-family:Arial,sans-serif}.wrap{max-width:850px;margin:auto;padding:20px}.box,.card{background:#08100b;border:1px solid #00ff8845;border-radius:18px;padding:18px;margin:14px 0}.logo{font-size:28px;font-weight:900}.g{color:#00ff88}input{width:100%;padding:14px;border-radius:12px;border:1px solid #00ff8850;background:#020403;color:#fff;box-sizing:border-box}.btn{padding:12px 15px;border:0;border-radius:12px;background:#00ff88;color:#001b0c;font-weight:900;margin-top:10px}.danger{background:#ff405c;color:#fff}.muted{color:#8ba293}.row{display:flex;gap:10px;align-items:center;justify-content:space-between}.hide{display:none}.card h3{margin:8px 0}.checks{margin-right:10px;transform:scale(1.3)}
+</style></head><body><div class="wrap">
+<div class="logo"><span class="g">⚡ OWNER</span> KAWAKI227</div>
+<div id="login" class="box"><h2>Accès propriétaire</h2><p class="muted">Panneau privé de gestion des rooms.</p><input id="code" type="password" placeholder="Code d'accès"><button class="btn" onclick="login()">ENTRER</button><p id="err"></p></div>
+<div id="app" class="hide"><div class="box"><div class="row"><h2>ROOM MANAGEMENT</h2><button class="btn" onclick="load()">↻</button></div><p id="stats" class="muted"></p><button class="btn danger" onclick="delSelected()">🗑️ SUPPRIMER LES SÉLECTIONNÉES</button> <button class="btn" onclick="logout()">Déconnexion</button></div><div id="rooms"></div></div>
+</div>
+<script>
+let token=sessionStorage.getItem("ffrc_admin_v4")||"";let data=[];
+function esc(x=""){return String(x).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+async function login(){let r=await fetch("/api/admin/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({code:code.value})});let d=await r.json();if(!r.ok){err.textContent=d.error||"Accès refusé";return}token=d.token;sessionStorage.setItem("ffrc_admin_v4",token);show();load()}
+function show(){loginBox=false;document.getElementById("login").classList.add("hide");document.getElementById("app").classList.remove("hide")}
+async function load(){let r=await fetch("/api/admin/rooms",{headers:{Authorization:"Bearer "+token}});if(r.status===401){logout();return}data=await r.json();stats.textContent=`${data.length} room(s) • sélectionnées : ${document.querySelectorAll(".checks:checked").length}`;rooms.innerHTML=data.map(x=>`<div class="card"><div class="row"><label><input class="checks" type="checkbox" value="${x.id}"> sélectionner</label><button class="btn danger" onclick="delOne(${x.id})">🗑️</button></div><h3>${esc(x.creator)} — ${esc(x.type)}</h3><div class="muted">ID: ${esc(x.squad_id)} • Récompense: ${esc(x.reward)}</div><div class="muted">Expire: ${new Date(x.expires_at).toLocaleString("fr-FR")}</div></div>`).join("")||"<div class='box'>Aucune room.</div>"}
+async function delOne(id){if(!confirm("Supprimer cette room ?"))return;await fetch("/api/admin/rooms/"+id,{method:"DELETE",headers:{Authorization:"Bearer "+token}});load()}
+async function delSelected(){let ids=[...document.querySelectorAll(".checks:checked")].map(x=>Number(x.value));if(!ids.length)return alert("Sélectionne au moins une room.");if(!confirm("Supprimer les rooms sélectionnées ?"))return;await fetch("/api/admin/rooms/delete-many",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({ids})});load()}
+function logout(){sessionStorage.removeItem("ffrc_admin_v4");location.reload()}
+if(token){show();load()}
+</script></body></html>

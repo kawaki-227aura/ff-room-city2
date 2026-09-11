@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#00ff88">
+<title>FF ROOM CITY</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#050806;color:#eafff1;font-family:Arial,sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background-image:linear-gradient(#00ff8830 1px,transparent 1px),linear-gradient(90deg,#00ff8830 1px,transparent 1px);background-size:28px 28px}
+.wrap{max-width:900px;margin:auto;padding:18px;position:relative}.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo{font-size:28px;font-weight:900}.logo span{color:#00ff88}.nav a,.btn{border:1px solid #00ff8855;background:#0a130e;color:#caffdf;border-radius:12px;padding:10px 13px;text-decoration:none}
+.hero{margin-top:25px}.hero h1{font-size:clamp(34px,8vw,62px);margin:0 0 8px;text-transform:uppercase}.green{color:#00ff88}
+.panel,.card{background:#07100bdf;border:1px solid #00ff8840;border-radius:18px;padding:16px;margin-top:16px;box-shadow:0 0 28px #00ff8810}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}@media(max-width:600px){.grid{grid-template-columns:1fr}}
+input,select{width:100%;padding:13px;border-radius:12px;border:1px solid #00ff8835;background:#030704;color:white}
+button{cursor:pointer}.primary{width:100%;margin-top:12px;padding:14px;border:0;border-radius:13px;background:#00ff88;color:#001b0c;font-weight:900}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-top:14px}@media(max-width:700px){.filters{grid-template-columns:1fr}}
+.badge{display:inline-block;border:1px solid #00ff8870;border-radius:99px;padding:5px 9px;color:#00ff88;font-weight:800;font-size:12px}.muted{color:#91aa9b}.room-title{font-size:24px;font-weight:900;margin:12px 0}.row{display:flex;justify-content:space-between;gap:10px;margin:8px 0}.wa{display:inline-block;margin-top:12px;color:#00ff88;text-decoration:none}.empty{text-align:center;padding:30px;color:#81978a}
+footer{text-align:center;padding:28px;color:#607468;font-size:12px}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;padding:18px}.modal.on{display:flex}.modalbox{max-width:600px;width:100%;background:#07100b;border:1px solid #00ff8866;border-radius:20px;padding:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><div class="logo"><span>FF</span> ROOM CITY</div><nav><a href="/admin.html">⚡ OWNER</a></nav></header>
+<section class="hero"><h1>ROOMS <span class="green">DISPONIBLES</span></h1><div class="muted">Crée ou rejoins une room Free Fire.</div></section>
+<section class="panel">
+<h2>➕ CRÉER UNE ROOM</h2>
+<form id="form">
+<div class="grid">
+<select name="type" required><option value="">Type de room</option><option>1v1</option><option>1v2</option><option>2v2</option><option>2v3</option><option>2v4</option><option>3v3</option><option>3v4</option><option>3v5</option><option>3v6</option><option>1v6</option><option>2v6</option></select>
+<select name="reward" required><option value="">Récompense</option><option>Booyah Pass</option><option>Diamonds</option><option>Autre</option><option>Rien</option></select>
+<input name="phone" placeholder="Numéro WhatsApp" required>
+<input name="squad_id" placeholder="ID du Squad / Joueur" required>
+<input name="creator" placeholder="Nom du créateur" required>
+<input name="match_time" placeholder="Heure du match (optionnel)">
+<input name="rules" placeholder="Règles (optionnel)">
+</div><button class="primary">🚀 PUBLIER LA ROOM</button>
+</form>
+</section>
+<section class="panel">
+<div class="filters"><input id="q" placeholder="Rechercher une room, créateur ou ID..."><select id="ft"><option value="">Tous les formats</option></select><select id="fr"><option value="">Toutes les récompenses</option></select></div>
+<div id="rooms"></div>
+</section>
+<footer>FF ROOM CITY V4 • BY KAWAKI227 • +227 81 28 94 18</footer>
+</div>
+<div class="modal" id="modal"><div class="modalbox" id="modalbox"></div></div>
+<script>
+const $=s=>document.querySelector(s); let rooms=[];
+const types=["1v1","1v2","2v2","2v3","2v4","3v3","3v4","3v5","3v6","1v6","2v6"];
+types.forEach(x=>ft.insertAdjacentHTML("beforeend",`<option>${x}</option>`));
+["Booyah Pass","Diamonds","Autre","Rien"].forEach(x=>fr.insertAdjacentHTML("beforeend",`<option>${x}</option>`));
+function esc(x=""){return String(x).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function render(){
+ let q=$("#q").value.toLowerCase(),t=$("#ft").value,r=$("#fr").value;
+ let a=rooms.filter(x=>(!q||`${x.creator} ${x.squad_id} ${x.type} ${x.reward}`.toLowerCase().includes(q))&&(!t||x.type===t)&&(!r||x.reward===r));
+ $("#rooms").innerHTML=a.length?a.map(x=>`<article class="card"><span class="badge">${esc(x.type)}</span> <span class="muted">• ACTIVE</span><div class="room-title">${esc(x.creator)}</div><div class="row"><span>🎁 Récompense</span><b>${esc(x.reward)}</b></div><div class="row"><span>🆔 ID</span><b>${esc(x.squad_id)}</b></div><div class="row"><span>⏰ Match</span><b>${esc(x.match_time||"À définir")}</b></div><div class="muted">📅 Expire le ${new Date(x.expires_at).toLocaleString("fr-FR")}</div><button class="primary" onclick="detail(${x.id})">VOIR LA ROOM</button><a class="wa" target="_blank" href="https://wa.me/${String(x.phone).replace(/\\D/g,'')}">💬 WhatsApp</a></article>`).join(""):`<div class="empty">Aucune room disponible.</div>`;
+}
+async function load(){try{let r=await fetch("/api/rooms");rooms=await r.json();render()}catch(e){console.log(e)}}
+form.onsubmit=async e=>{e.preventDefault();let body=Object.fromEntries(new FormData(form));let r=await fetch("/api/rooms",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});let d=await r.json();if(!r.ok)return alert(d.error||"Erreur");alert("Room créée !");form.reset();load()};
+["q","ft","fr"].forEach(id=>$(id).oninput=render);
+function detail(id){let x=rooms.find(y=>y.id===id);modalbox.innerHTML=`<h2>🔥 ROOM ${esc(x.type)}</h2><h3>${esc(x.creator)}</h3><p>🎁 ${esc(x.reward)}</p><p>🆔 ${esc(x.squad_id)}</p><p>📱 ${esc(x.phone)}</p><p>📜 ${esc(x.rules||"Aucune règle")}</p><button class="primary" onclick="modal.classList.remove('on')">FERMER</button>`;modal.classList.add("on")}
+modal.onclick=e=>{if(e.target===modal)modal.classList.remove("on")};
+load();setInterval(load,5000);
+</script>
+</body></html>
