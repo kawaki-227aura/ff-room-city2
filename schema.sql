@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS rooms (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+type TEXT NOT NULL,
+reward TEXT NOT NULL,
+phone TEXT NOT NULL,
+squad_id TEXT NOT NULL,
+creator TEXT NOT NULL,
+created_at TEXT NOT NULL,
+match_time TEXT,
+rules TEXT,
+expires_at TEXT NOT NULL
+);
